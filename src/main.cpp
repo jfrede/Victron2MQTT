@@ -202,7 +202,7 @@ void handlePrometheusMetrics(AsyncWebServerRequest *request)
         }
         else if (value.is<float>() || value.is<int>())
         {
-                        metrics += "# HELP " + key + " Automatically generated metric\n";
+            metrics += "# HELP " + key + " Automatically generated metric\n";
             metrics += "# TYPE " + key + " gauge\n";
             metrics += key + " " + String(value.as<float>()) + "\n";
         }
