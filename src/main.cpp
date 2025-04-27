@@ -321,7 +321,7 @@ void setup()
                 serializeJson(Json, *response);
                 request->send(response); });
 
-                server.on("/metrics", HTTP_GET, handlePrometheusMetrics);
+    server.on("/metrics", HTTP_GET, handlePrometheusMetrics);
                 
     server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request)
               {
