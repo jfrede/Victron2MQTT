@@ -177,39 +177,39 @@ bool remoteControl(bool sw)
 
 void handlePrometheusMetrics(AsyncWebServerRequest *request)
 {
-    String metrics = "";
+  String metrics = "";
 
-    // Iteriere durch die JSON-Daten und generiere dynamisch Prometheus-Metriken
-    for (JsonPair kv : Json.as<JsonObject>())
+  // Iteriere durch die JSON-Daten und generiere dynamisch Prometheus-Metriken
+  for (JsonPair kv : Json.as<JsonObject>())
+  {
+    String key = kv.key().c_str();
+    JsonVariant value = kv.value();
+
+    if (value.is<JsonObject>())
     {
-        String key = kv.key().c_str();
-        JsonVariant value = kv.value();
+      for (JsonPair nestedKv : value.as<JsonObject>())
+      {
+        String nestedKey = nestedKv.key().c_str();
+        JsonVariant nestedValue = nestedKv.value();
 
-        if (value.is<JsonObject>())
+        if (nestedValue.is<float>() || nestedValue.is<int>())
         {
-                        for (JsonPair nestedKv : value.as<JsonObject>())
-            {
-                String nestedKey = nestedKv.key().c_str();
-                JsonVariant nestedValue = nestedKv.value();
-
-                if (nestedValue.is<float>() || nestedValue.is<int>())
-                {
-                    metrics += "# HELP " + key + "_" + nestedKey + " Automatically generated metric\n";
-                    metrics += "# TYPE " + key + "_" + nestedKey + " gauge\n";
-                    metrics += key + "_" + nestedKey + " " + String(nestedValue.as<float>()) + "\n";
-                }
-            }
+          metrics += "# HELP " + key + "_" + nestedKey + " Automatically generated metric\n";
+          metrics += "# TYPE " + key + "_" + nestedKey + " gauge\n";
+          metrics += key + "_" + nestedKey + " " + String(nestedValue.as<float>()) + "\n";
         }
-        else if (value.is<float>() || value.is<int>())
-        {
-            metrics += "# HELP " + key + " Automatically generated metric\n";
-            metrics += "# TYPE " + key + " gauge\n";
-            metrics += key + " " + String(value.as<float>()) + "\n";
-        }
+      }
     }
+    else if (value.is<float>() || value.is<int>())
+    {
+      metrics += "# HELP " + key + " Automatically generated metric\n";
+      metrics += "# TYPE " + key + " gauge\n";
+      metrics += key + " " + String(value.as<float>()) + "\n";
+    }
+  }
 
-    // Sende die Metriken als Antwort
-    request->send(200, "text/plain", metrics);
+  // Sende die Metriken als Antwort
+  request->send(200, "text/plain", metrics);
 }
 
 void setup()
